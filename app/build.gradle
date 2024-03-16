@@ -1,0 +1,41 @@
+apply plugin: 'com.android.application'
+
+android {
+    namespace 'com.example.namespace'
+    compileSdk 34
+//    buildToolsVersion '34.0.0'
+//    compileOptions {
+//        sourceCompatibility JavaVersion.VERSION_1_8
+//        targetCompatibility JavaVersion.VERSION_1_8
+//    }
+    defaultConfig {
+        applicationId "net.micode.notes"
+        minSdk 23
+        targetSdk 34
+        versionName kotlin_version
+        versionNameSuffix kotlin_version
+//        signingConfig signingConfigs.debug
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+        }
+    }
+    lintOptions {
+        checkReleaseBuilds false
+        abortOnError false
+    }
+    android{
+        useLibrary 'org.apache.http.legacy'
+        namespace 'net.micode.notes'
+//       fix AndroidManifest.xml:
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility "17"
+    }
+    ndkVersion '26.2.11394342'
+
+}
