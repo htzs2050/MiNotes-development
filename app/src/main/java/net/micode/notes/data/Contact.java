@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+//联系人数据库
 package net.micode.notes.data;
 
 import android.content.Context;

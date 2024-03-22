@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+//便签数据库，用于记录便签相关属性和数据
 package net.micode.notes.data;
 
 import android.net.Uri;

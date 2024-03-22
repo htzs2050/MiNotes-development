@@ -23,7 +23,7 @@ import net.micode.notes.tool.GTaskStringUtils;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-
+//关于同步任务的元数据
 
 public class MetaData extends Task {
     private final static String TAG = MetaData.class.getSimpleName();

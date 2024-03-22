@@ -15,7 +15,7 @@
  */
 
 package net.micode.notes.data;
-
+//数据库帮助类，用于辅助创建、处理数据库的条目
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;

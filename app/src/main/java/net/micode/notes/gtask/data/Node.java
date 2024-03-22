@@ -19,7 +19,10 @@ package net.micode.notes.gtask.data;
 import android.database.Cursor;
 
 import org.json.JSONObject;
-
+//单个便签项
+//
+//        WorkingNote
+//        当前活动便签项
 public abstract class Node {
     public static final int SYNC_ACTION_NONE = 0;
 

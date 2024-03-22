@@ -16,7 +16,7 @@
 
 package net.micode.notes.data;
 
-
+//便签信息提供类
 import android.app.SearchManager;
 import android.content.ContentProvider;
 import android.content.ContentUris;
