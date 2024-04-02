@@ -34,14 +34,14 @@ import net.micode.notes.data.Notes.DataColumns;
 import net.micode.notes.data.Notes.NoteColumns;
 import net.micode.notes.data.NotesDatabaseHelper.TABLE;
 
-
+// 全局声明：内容提供者类，用于处理与笔记数据有关的所有数据库操作（如查询、插入、更新和删除）
 public class NotesProvider extends ContentProvider {
-    private static final UriMatcher mMatcher;
+    private static final UriMatcher mMatcher;// URI匹配器，用于匹配不同的URI请求
 
-    private NotesDatabaseHelper mHelper;
+    private NotesDatabaseHelper mHelper; // 数据库辅助对象，用于数据库创建和版本管理
 
     private static final String TAG = "NotesProvider";
-
+    // 定义请求类型的常量
     private static final int URI_NOTE            = 1;
     private static final int URI_NOTE_ITEM       = 2;
     private static final int URI_DATA            = 3;
@@ -49,7 +49,7 @@ public class NotesProvider extends ContentProvider {
 
     private static final int URI_SEARCH          = 5;
     private static final int URI_SEARCH_SUGGEST  = 6;
-
+    // 在静态块中初始化URI匹配器，将不同类型的URI路径与上述常量进行匹配
     static {
         mMatcher = new UriMatcher(UriMatcher.NO_MATCH);
         mMatcher.addURI(Notes.AUTHORITY, "note", URI_NOTE);
@@ -65,6 +65,7 @@ public class NotesProvider extends ContentProvider {
      * x'0A' represents the '\n' character in sqlite. For title and content in the search result,
      * we will trim '\n' and white space in order to show more information.
      */
+    // 搜索时使用的SQL投影，用于处理搜索结果的显示
     private static final String NOTES_SEARCH_PROJECTION = NoteColumns.ID + ","
         + NoteColumns.ID + " AS " + SearchManager.SUGGEST_COLUMN_INTENT_EXTRA_DATA + ","
         + "TRIM(REPLACE(" + NoteColumns.SNIPPET + ", x'0A','')) AS " + SearchManager.SUGGEST_COLUMN_TEXT_1 + ","
@@ -72,25 +73,25 @@ public class NotesProvider extends ContentProvider {
         + R.drawable.search_result + " AS " + SearchManager.SUGGEST_COLUMN_ICON_1 + ","
         + "'" + Intent.ACTION_VIEW + "' AS " + SearchManager.SUGGEST_COLUMN_INTENT_ACTION + ","
         + "'" + Notes.TextNote.CONTENT_TYPE + "' AS " + SearchManager.SUGGEST_COLUMN_INTENT_DATA;
-
+    // 搜索笔记的SQL查询语句，根据提供的模糊匹配条件搜索
     private static String NOTES_SNIPPET_SEARCH_QUERY = "SELECT " + NOTES_SEARCH_PROJECTION
         + " FROM " + TABLE.NOTE
         + " WHERE " + NoteColumns.SNIPPET + " LIKE ?"
         + " AND " + NoteColumns.PARENT_ID + "<>" + Notes.ID_TRASH_FOLER
         + " AND " + NoteColumns.TYPE + "=" + Notes.TYPE_NOTE;
-
+    // 获取数据库辅助对象实例
     @Override
     public boolean onCreate() {
         mHelper = NotesDatabaseHelper.getInstance(getContext());
-        return true;
+        return true;// 返回true表示内容提供者创建成功
     }
 
     @Override
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs,
             String sortOrder) {
-        Cursor c = null;
-        SQLiteDatabase db = mHelper.getReadableDatabase();
-        String id = null;
+        Cursor c = null;// 查询结果Cursor
+        SQLiteDatabase db = mHelper.getReadableDatabase();// 获取可读数据库实例
+        String id = null; // 用于存储URI中的ID部分
         switch (mMatcher.match(uri)) {
             case URI_NOTE:
                 c = db.query(TABLE.NOTE, projection, selection, selectionArgs, null, null,
@@ -144,13 +145,13 @@ public class NotesProvider extends ContentProvider {
         if (c != null) {
             c.setNotificationUri(getContext().getContentResolver(), uri);
         }
-        return c;
+        return c;// 返回查询结果Cursor
     }
 
-    @Override
+    @Override// 获取可写数据库实例
     public Uri insert(Uri uri, ContentValues values) {
         SQLiteDatabase db = mHelper.getWritableDatabase();
-        long dataId = 0, noteId = 0, insertedId = 0;
+        long dataId = 0, noteId = 0, insertedId = 0;// 插入数据的ID
         switch (mMatcher.match(uri)) {
             case URI_NOTE:
                 insertedId = noteId = db.insert(TABLE.NOTE, null, values);
@@ -167,7 +168,7 @@ public class NotesProvider extends ContentProvider {
                 throw new IllegalArgumentException("Unknown URI " + uri);
         }
         // Notify the note uri
-        if (noteId > 0) {
+        if (noteId > 0) { // 根据插入结果更新相应的URI观察者
             getContext().getContentResolver().notifyChange(
                     ContentUris.withAppendedId(Notes.CONTENT_NOTE_URI, noteId), null);
         }
@@ -183,10 +184,10 @@ public class NotesProvider extends ContentProvider {
 
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
-        int count = 0;
-        String id = null;
-        SQLiteDatabase db = mHelper.getWritableDatabase();
-        boolean deleteData = false;
+        int count = 0;// 删除的记录数
+        String id = null; // 存储URI中的ID部分
+        SQLiteDatabase db = mHelper.getWritableDatabase();// 获取可写数据库实例
+        boolean deleteData = false;// 标记是否删除数据
         switch (mMatcher.match(uri)) {
             case URI_NOTE:
                 selection = "(" + selection + ") AND " + NoteColumns.ID + ">0 ";
@@ -224,13 +225,13 @@ public class NotesProvider extends ContentProvider {
             }
             getContext().getContentResolver().notifyChange(uri, null);
         }
-        return count;
+        return count;// 返回删除的记录数
     }
 
     @Override
     public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
-        int count = 0;
-        String id = null;
+        int count = 0;// 更新的记录数
+        String id = null;// 用于存储URI中的ID部分
         SQLiteDatabase db = mHelper.getWritableDatabase();
         boolean updateData = false;
         switch (mMatcher.match(uri)) {
@@ -266,11 +267,11 @@ public class NotesProvider extends ContentProvider {
         }
         return count;
     }
-
+    // 辅助方法，用于处理查询或更新条件
     private String parseSelection(String selection) {
         return (!TextUtils.isEmpty(selection) ? " AND (" + selection + ')' : "");
     }
-
+    // 更新笔记版本
     private void increaseNoteVersion(long id, String selection, String[] selectionArgs) {
         StringBuilder sql = new StringBuilder(120);
         sql.append("UPDATE ");
@@ -295,7 +296,7 @@ public class NotesProvider extends ContentProvider {
 
         mHelper.getWritableDatabase().execSQL(sql.toString());
     }
-
+/// 根据URI返回MIME类型，暂未实现
     @Override
     public String getType(Uri uri) {
         // TODO Auto-generated method stub

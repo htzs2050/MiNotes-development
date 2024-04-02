@@ -20,9 +20,9 @@ import android.net.Uri;
 public class Notes {
     public static final String AUTHORITY = "micode_notes";
     public static final String TAG = "Notes";
-    public static final int TYPE_NOTE     = 0;
-    public static final int TYPE_FOLDER   = 1;
-    public static final int TYPE_SYSTEM   = 2;
+    public static final int TYPE_NOTE     = 0;// 普通便签
+    public static final int TYPE_FOLDER   = 1;// 文件夹类型，可以包含多个便签
+    public static final int TYPE_SYSTEM   = 2;// 系统保留类型
 
     /**
      * Following IDs are system folders' identifiers
@@ -30,11 +30,13 @@ public class Notes {
      * {@link Notes#ID_TEMPARAY_FOLDER } is for notes belonging no folder
      * {@link Notes#ID_CALL_RECORD_FOLDER} is to store call records
      */
-    public static final int ID_ROOT_FOLDER = 0;
-    public static final int ID_TEMPARAY_FOLDER = -1;
-    public static final int ID_CALL_RECORD_FOLDER = -2;
-    public static final int ID_TRASH_FOLER = -3;
+    // 定义系统文件夹的标识符。
+    public static final int ID_ROOT_FOLDER = 0;//默认文件夹
+    public static final int ID_TEMPARAY_FOLDER = -1;//临时文件夹，用于存储未分类便签
+    public static final int ID_CALL_RECORD_FOLDER = -2;//通话记录文件夹
+    public static final int ID_TRASH_FOLER = -3;//垃圾箱
 
+    // 定义Intent传递数据时使用的额外字段名。
     public static final String INTENT_EXTRA_ALERT_DATE = "net.micode.notes.alert_date";
     public static final String INTENT_EXTRA_BACKGROUND_ID = "net.micode.notes.background_color_id";
     public static final String INTENT_EXTRA_WIDGET_ID = "net.micode.notes.widget_id";
@@ -42,10 +44,11 @@ public class Notes {
     public static final String INTENT_EXTRA_FOLDER_ID = "net.micode.notes.folder_id";
     public static final String INTENT_EXTRA_CALL_DATE = "net.micode.notes.call_date";
 
+    // 定义小部件类型。
     public static final int TYPE_WIDGET_INVALIDE      = -1;
     public static final int TYPE_WIDGET_2X            = 0;
     public static final int TYPE_WIDGET_4X            = 1;
-
+    // 内部类，定义数据常量。
     public static class DataConstants {
         public static final String NOTE = TextNote.CONTENT_ITEM_TYPE;
         public static final String CALL_NOTE = CallNote.CONTENT_ITEM_TYPE;
@@ -54,13 +57,15 @@ public class Notes {
     /**
      * Uri to query all notes and folders
      */
+    // 定义查询所有便签和文件夹的URI。
     public static final Uri CONTENT_NOTE_URI = Uri.parse("content://" + AUTHORITY + "/note");
 
     /**
      * Uri to query data
      */
+    // 定义查询数据的URI。
     public static final Uri CONTENT_DATA_URI = Uri.parse("content://" + AUTHORITY + "/data");
-
+    // 接口，定义了便签数据库中列的名字和预期数据类型。
     public interface NoteColumns {
         /**
          * The unique ID for a row
@@ -167,6 +172,7 @@ public class Notes {
         public static final String VERSION = "version";
     }
 
+    // 同理，定义数据列的接口。
     public interface DataColumns {
         /**
          * The unique ID for a row
@@ -241,6 +247,7 @@ public class Notes {
         public static final String DATA5 = "data5";
     }
 
+    // 定义文本便签相关的Uri和类型常量，以及模式常量。
     public static final class TextNote implements DataColumns {
         /**
          * Mode to indicate the text in check list mode or not
@@ -257,6 +264,7 @@ public class Notes {
         public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/text_note");
     }
 
+    // 定义电话便签相关的Url和类型常量以及具体的列。
     public static final class CallNote implements DataColumns {
         /**
          * Call date for this record
