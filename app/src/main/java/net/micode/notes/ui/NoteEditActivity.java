@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+// 包名声明，指明了文件所在的包路径
 package net.micode.notes.ui;
-
+// 导入所需的类库
 import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.AlertDialog;
@@ -71,9 +71,11 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-
+// NoteEditActivity类定义，继承Activity，实现了多个接口，用于处理用户点击操作等
 public class NoteEditActivity extends Activity implements OnClickListener,
         NoteSettingChangedListener, OnTextViewChangeListener {
+
+    // 定义内部类HeadViewHolder用于持有笔记头部视图的引用
     private class HeadViewHolder {
         public TextView tvModified;
 
@@ -83,7 +85,7 @@ public class NoteEditActivity extends Activity implements OnClickListener,
 
         public ImageView ibSetBgColor;
     }
-
+    // 定义背景选择按钮的映射
     private static final Map<Integer, Integer> sBgSelectorBtnsMap = new HashMap<Integer, Integer>();
     static {
         sBgSelectorBtnsMap.put(R.id.iv_bg_yellow, ResourceParser.YELLOW);
@@ -91,8 +93,9 @@ public class NoteEditActivity extends Activity implements OnClickListener,
         sBgSelectorBtnsMap.put(R.id.iv_bg_blue, ResourceParser.BLUE);
         sBgSelectorBtnsMap.put(R.id.iv_bg_green, ResourceParser.GREEN);
         sBgSelectorBtnsMap.put(R.id.iv_bg_white, ResourceParser.WHITE);
-    }
+    } // 预设颜色选择映射关系...
 
+    // 字体大小选择和背景颜色选择集合的初始化
     private static final Map<Integer, Integer> sBgSelectorSelectionMap = new HashMap<Integer, Integer>();
     static {
         sBgSelectorSelectionMap.put(ResourceParser.YELLOW, R.id.iv_bg_yellow_select);
@@ -120,8 +123,10 @@ public class NoteEditActivity extends Activity implements OnClickListener,
 
     private static final String TAG = "NoteEditActivity";
 
-    private HeadViewHolder mNoteHeaderHolder;
+    // 类的成员变量定义
+    private HeadViewHolder mNoteHeaderHolder; // 包含笔记头部相关视图的holder
 
+    // 其他视图和数据对象的声明...
     private View mHeadViewPanel;
 
     private View mNoteBgColorSelector;
@@ -149,6 +154,8 @@ public class NoteEditActivity extends Activity implements OnClickListener,
     private String mUserQuery;
     private Pattern mPattern;
 
+    // 在Activity被创建时调用的方法
+    // Activity的创建。设置布局，初始化状态和资源
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -165,6 +172,7 @@ public class NoteEditActivity extends Activity implements OnClickListener,
      * Current activity may be killed when the memory is low. Once it is killed, for another time
      * user load this activity, we should restore the former state
      */
+    // 当Activity从被系统回收的状态恢复时，重建之前的状态
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
@@ -178,7 +186,7 @@ public class NoteEditActivity extends Activity implements OnClickListener,
             Log.d(TAG, "Restoring from killed activity");
         }
     }
-
+    // 根据传入的Intent初始化Activity状态，如加载笔记数据，设置编辑或查看状态
     private boolean initActivityState(Intent intent) {
         /**
          * If the user specified the {@link Intent#ACTION_VIEW} but not provided with id,
@@ -262,12 +270,14 @@ public class NoteEditActivity extends Activity implements OnClickListener,
         return true;
     }
 
+    // 当Activity重新获得焦点时，根据笔记的状态更新UI
     @Override
     protected void onResume() {
         super.onResume();
         initNoteScreen();
     }
 
+    // 更新笔记编辑界面，如设置背景颜色，显示提醒时间等
     private void initNoteScreen() {
         mNoteEditor.setTextAppearance(this, TextAppearanceResources
                 .getTexAppearanceResource(mFontSizeId));
@@ -295,6 +305,7 @@ public class NoteEditActivity extends Activity implements OnClickListener,
         showAlertHeader();
     }
 
+    // 显示提醒信息头部，如设置提醒图标和提醒时间
     private void showAlertHeader() {
         if (mWorkingNote.hasClockAlert()) {
             long time = System.currentTimeMillis();
@@ -425,6 +436,7 @@ public class NoteEditActivity extends Activity implements OnClickListener,
         setResult(RESULT_OK, intent);
     }
 
+    // 多种点击和用户交互事件的处理逻辑，如点击背景颜色选择器
     public void onClick(View v) {
         int id = v.getId();
         if (id == R.id.btn_set_bg_color) {
@@ -451,7 +463,7 @@ public class NoteEditActivity extends Activity implements OnClickListener,
             mFontSizeSelector.setVisibility(View.GONE);
         }
     }
-
+    // Back按钮被按下时的逻辑，保存笔记，清除设置状态
     @Override
     public void onBackPressed() {
         if(clearSettingState()) {
@@ -479,7 +491,7 @@ public class NoteEditActivity extends Activity implements OnClickListener,
         mNoteEditorPanel.setBackgroundResource(mWorkingNote.getBgColorResId());
         mHeadViewPanel.setBackgroundResource(mWorkingNote.getTitleBgResId());
     }
-
+    // 在Activity准备OptionsMenu时触发，用于动态更新菜单项
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         if (isFinishing()) {
@@ -505,6 +517,7 @@ public class NoteEditActivity extends Activity implements OnClickListener,
         return true;
     }
 
+    // 用户选择OptionsMenu中某个选项时的逻辑
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
@@ -569,6 +582,8 @@ public class NoteEditActivity extends Activity implements OnClickListener,
         return true;
     }
 
+
+    // 设置提醒时间的逻辑
     private void setReminder() {
         DateTimePickerDialog d = new DateTimePickerDialog(this, System.currentTimeMillis());
         d.setOnDateTimeSetListener(new OnDateTimeSetListener() {
@@ -583,13 +598,14 @@ public class NoteEditActivity extends Activity implements OnClickListener,
      * Share note to apps that support {@link Intent#ACTION_SEND} action
      * and {@text/plain} type
      */
+    // 分享笔记到其他应用的逻辑
     private void sendTo(Context context, String info) {
         Intent intent = new Intent(Intent.ACTION_SEND);
         intent.putExtra(Intent.EXTRA_TEXT, info);
         intent.setType("text/plain");
         context.startActivity(intent);
     }
-
+    // 创建新笔记的逻辑
     private void createNewNote() {
         // Firstly, save current editing notes
         saveNote();
@@ -886,9 +902,10 @@ public class NoteEditActivity extends Activity implements OnClickListener,
     private void showToast(int resId, int duration) {
         Toast.makeText(this, resId, duration).show();
     }
-    
 
+    // 打开菜单的逻辑
     public void OnOpenMenu(View view) {
 		openOptionsMenu();
 	}
 }
+
