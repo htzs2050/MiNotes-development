@@ -336,6 +336,7 @@ public class NoteEditActivity extends Activity implements OnClickListener,
          * is not ready
          */
         showAlertHeader();
+        convertToImage();
     }
 
     // 显示提醒信息头部，如设置提醒图标和提醒时间
@@ -844,6 +845,7 @@ public class NoteEditActivity extends Activity implements OnClickListener,
             mNoteEditor.setText(getHighlightQueryResult(mWorkingNote.getContent(), mUserQuery));
             mEditTextList.setVisibility(View.GONE);
             mNoteEditor.setVisibility(View.VISIBLE);
+            convertToImage(); //退出清单模式，应该将有图片的地方显示出来0407添加
         }
     }
 
@@ -1012,6 +1014,7 @@ public class NoteEditActivity extends Activity implements OnClickListener,
                         bitmap = BitmapFactory.decodeFile(path);//将图片路径解码为图片格式
                     } catch (Exception e) {
                         e.printStackTrace();
+
                     }
                     if(bitmap!=null){  //若图片存在
                         Log.d(TAG, "图片不为null");
@@ -1026,6 +1029,7 @@ public class NoteEditActivity extends Activity implements OnClickListener,
                         edit_text.delete(i,i+len+15); //6.删掉图片路径的文字
                         edit_text.insert(i, spannableString); //7.在路径的起始位置插入图片
                     }
+
                 }
             }
         }
