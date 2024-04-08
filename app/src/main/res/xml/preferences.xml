@@ -26,5 +26,6 @@
             android:key="pref_key_bg_random_appear"
             android:title="@string/preferences_bg_random_appear_title"
             android:defaultValue="false" />
+
     </PreferenceCategory>
 </PreferenceScreen>

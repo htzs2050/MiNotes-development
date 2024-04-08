@@ -80,7 +80,7 @@ import java.util.HashSet;
 
 public class NotesListActivity extends Activity implements OnClickListener, OnItemLongClickListener {
     private static final int FOLDER_NOTE_LIST_QUERY_TOKEN = 0;
-    //首页背景切换
+    //首页背景切换wyl:定义一个变量
     private int backgroundmode = -1;
     private static final int FOLDER_LIST_QUERY_TOKEN      = 1;
 
@@ -144,7 +144,11 @@ public class NotesListActivity extends Activity implements OnClickListener, OnIt
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.note_list);
-        getWindow().setBackgroundDrawableResource(R.drawable.tengwang);
+        //
+
+//        getWindow().setBackgroundDrawableResource(R.drawable.tengwang);
+        getWindow().setBackgroundDrawableResource(R.drawable.qiushui);
+//        getWindow().setBackgroundDrawableResource(R.drawable.qiushui);
         initResources();
 
         /**
@@ -824,13 +828,32 @@ public class NotesListActivity extends Activity implements OnClickListener, OnIt
         } else {
             Log.e(TAG, "Wrong state:" + mState);
         }
+        if(backgroundmode == -1){
+            menu.findItem(R.id.menu_tengwang).setVisible(false);
+        }else if(backgroundmode == 0){
+            menu.findItem(R.id.menu_mountains).setVisible(false);
+        }else if(backgroundmode == 1){
+            menu.findItem(R.id.menu_qiushui).setVisible(false);
+        }
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+            if(item.getItemId() == R.id.menu_tengwang){
+                backgroundmode = -1;
+                getWindow().setBackgroundDrawableResource(R.drawable.tengwang);
+            }else if(item.getItemId() == R.id.menu_mountains){
+                backgroundmode = 0;
+                getWindow().setBackgroundDrawableResource(R.drawable.mountains);
+            }else if(item.getItemId() == R.id.menu_qiushui){
+                backgroundmode = 1;
+                getWindow().setBackgroundDrawableResource(R.drawable.qiushui);
+            }
 
-            if(item.getItemId() == R.id.menu_new_folder){
+
+
+        if(item.getItemId() == R.id.menu_new_folder){
                 showCreateOrModifyFolderDialog(true);
 //                break;
             }
@@ -861,11 +884,7 @@ public class NotesListActivity extends Activity implements OnClickListener, OnIt
             else if(item.getItemId() == R.id.menu_search) {
                 onSearchRequested();
 //                break;
-            }else if(item.getItemId() == R.id.menu_tengwang){
-                backgroundmode = 0;
-                getWindow().setBackgroundDrawableResource(R.drawable.tengwang);
             }
-
 //                break;
 
         return true;

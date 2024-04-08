@@ -39,5 +39,11 @@
     <item
         android:id="@+id/menu_tengwang"
         android:title="@string/menu_tengwang"/>
+    <item
+        android:id="@+id/menu_mountains"
+        android:title="@string/menu_mountains"/>
+    <item
+        android:id="@+id/menu_qiushui"
+        android:title="@string/menu_qiushui"/>
 
 </menu>
