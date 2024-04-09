@@ -33,14 +33,21 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.PrintStream;
 
 
 public class BackupUtils {
-    private static final String TAG = "BackupUtils";
+    private static final String TAG = "BackupUtils";// 为类定义一个TAG，用于日志输出
+    // Singleton stuff 单例模式的实现
     // Singleton stuff
+
+
     private static BackupUtils sInstance;
 
+//    private Context context;//0408
+
+    // 获取BackupUtils的单例对象
     public static synchronized BackupUtils getInstance(Context context) {
         if (sInstance == null) {
             sInstance = new BackupUtils(context);
@@ -50,8 +57,9 @@ public class BackupUtils {
 
     /**
      * Following states are signs to represents backup or restore
-     * status
+     * status下面的状态常量用于表示备份或恢复状态
      */
+
     // Currently, the sdcard is not mounted
     public static final int STATE_SD_CARD_UNMOUONTED           = 0;
     // The backup file not exist
@@ -64,7 +72,7 @@ public class BackupUtils {
     public static final int STATE_SUCCESS                      = 4;
 
     private TextExport mTextExport;
-
+    // 构造函数
     private BackupUtils(Context context) {
         mTextExport = new TextExport(context);
     }
@@ -76,7 +84,14 @@ public class BackupUtils {
     public int exportToText() {
         return mTextExport.exportToText();
     }
-
+//    public int exportToTextInternalStorage() {
+//
+//        return mTextExport.exportToText();
+//    }//wyl注释
+    public int exportToTextInternalStorage() {//仿写exportToText()，导出到内部存储，注意一下，这个的意义就在于，
+                                              // 他是一步递归下去，使得它可以对mTextExport进行操作
+        return mTextExport.exportToTextInternalStorage();
+    }
     public String getExportedTextFileName() {
         return mTextExport.mFileName;
     }
@@ -84,6 +99,21 @@ public class BackupUtils {
     public String getExportedTextFileDir() {
         return mTextExport.mFileDirectory;
     }
+//    public String getExportedTextFileDir() {
+//        // 使用getFilesDir()获取到内部存储的根目录路径
+//        return mContext.getFilesDir().getAbsolutePath();
+//    }//wyl:将导出保存到内部存储的根目录
+
+
+//    public Integer exportToTextInternalStorage() {
+//
+//    }
+
+
+    // 提供获取导出文件名和位置的方法
+//    public String getExportedTextFileName() {
+//        return "note_export.txt";
+//    }
 
     private static class TextExport {
         private static final String[] NOTE_PROJECTION = {
@@ -125,19 +155,21 @@ public class BackupUtils {
         private String mFileName;
         private String mFileDirectory;
 
+        // 构造函数
         public TextExport(Context context) {
             TEXT_FORMAT = context.getResources().getStringArray(R.array.format_for_exported_note);
             mContext = context;
             mFileName = "";
             mFileDirectory = "";
         }
-
+        // 获取指定id的格式化模板
         private String getFormat(int id) {
             return TEXT_FORMAT[id];
         }
 
         /**
          * Export the folder identified by folder id to text
+         * 导出指定文件夹ID的笔记到文本
          */
         private void exportFolderToText(String folderId, PrintStream ps) {
             // Query notes belong to this folder
@@ -150,10 +182,12 @@ public class BackupUtils {
                 if (notesCursor.moveToFirst()) {
                     do {
                         // Print note's last modified date
+                        //打印笔记修改日期
                         ps.println(String.format(getFormat(FORMAT_NOTE_DATE), DateFormat.format(
                                 mContext.getString(R.string.format_datetime_mdhm),
                                 notesCursor.getLong(NOTE_COLUMN_MODIFIED_DATE))));
                         // Query data belong to this note
+                        // 导出笔记内容
                         String noteId = notesCursor.getString(NOTE_COLUMN_ID);
                         exportNoteToText(noteId, ps);
                     } while (notesCursor.moveToNext());
@@ -164,6 +198,7 @@ public class BackupUtils {
 
         /**
          * Export note identified by id to a print stream
+         *  将指定ID的笔记导出到打印流
          */
         private void exportNoteToText(String noteId, PrintStream ps) {
             Cursor dataCursor = mContext.getContentResolver().query(Notes.CONTENT_DATA_URI,
@@ -174,7 +209,7 @@ public class BackupUtils {
             if (dataCursor != null) {
                 if (dataCursor.moveToFirst()) {
                     do {
-                        String mimeType = dataCursor.getString(DATA_COLUMN_MIME_TYPE);
+                        String mimeType = dataCursor.getString(DATA_COLUMN_MIME_TYPE); // 处理特定的MIME类型数据
                         if (DataConstants.CALL_NOTE.equals(mimeType)) {
                             // Print phone number
                             String phoneNumber = dataCursor.getString(DATA_COLUMN_PHONE_NUMBER);
@@ -218,12 +253,14 @@ public class BackupUtils {
         /**
          * Note will be exported as text which is user readable
          */
+//        将笔记导出为用户可读的文本形式
         public int exportToText() {
+            // 检查外部存储是否可用
             if (!externalStorageAvailable()) {
                 Log.d(TAG, "Media was not mounted");
                 return STATE_SD_CARD_UNMOUONTED;
             }
-
+            // 获取导出到文本的打印流
             PrintStream ps = getExportToTextPrintStream();
             if (ps == null) {
                 Log.e(TAG, "get print stream error");
@@ -278,12 +315,91 @@ public class BackupUtils {
                 noteCursor.close();
             }
             ps.close();
+            // 遍历数据库中的内容，将其写入文本
+            return STATE_SUCCESS;
+        }
+        public int exportToTextInternalStorage() { //仿写exportToText()，导出到内部存储
+            // 获取导出到文本的打印流，保存至内部存储
+            PrintStream ps = getExportToTextPrintStreamInternalStorage();
+            if (ps == null) {
+                Log.e(TAG, "get print stream error");
+                return STATE_SYSTEM_ERROR;
+            }
+
+            // 遍历和导出文件夹及其笔记
+            Cursor folderCursor = mContext.getContentResolver().query(
+                    Notes.CONTENT_NOTE_URI,
+                    NOTE_PROJECTION,
+                    "(" + NoteColumns.TYPE + "=" + Notes.TYPE_FOLDER + ") OR "
+                            + NoteColumns.ID + "=" + Notes.ID_CALL_RECORD_FOLDER, null, null);
+
+            if (folderCursor != null) {
+                if (folderCursor.moveToFirst()) {
+                    do {
+                        String folderName = "";
+                        if(folderCursor.getLong(NOTE_COLUMN_ID) == Notes.ID_CALL_RECORD_FOLDER) {
+                            folderName = mContext.getString(R.string.call_record_folder_name);
+                        } else {
+                            folderName = folderCursor.getString(NOTE_COLUMN_SNIPPET);
+                        }
+                        if (!TextUtils.isEmpty(folderName)) {
+                            ps.println(String.format(getFormat(FORMAT_FOLDER_NAME), folderName));
+                        }
+                        String folderId = folderCursor.getString(NOTE_COLUMN_ID);
+                        exportFolderToText(folderId, ps);
+                    } while (folderCursor.moveToNext());
+                }
+                folderCursor.close();
+            }
+
+            // 导出根文件夹中的笔记
+            Cursor noteCursor = mContext.getContentResolver().query(
+                    Notes.CONTENT_NOTE_URI,
+                    NOTE_PROJECTION,
+                    NoteColumns.TYPE + "=" + +Notes.TYPE_NOTE + " AND " + NoteColumns.PARENT_ID + "=0",
+                    null, null);
+
+            if (noteCursor != null) {
+                if (noteCursor.moveToFirst()) {
+                    do {
+                        ps.println(String.format(getFormat(FORMAT_NOTE_DATE), DateFormat.format(
+                                mContext.getString(R.string.format_datetime_mdhm),
+                                noteCursor.getLong(NOTE_COLUMN_MODIFIED_DATE))));
+                        String noteId = noteCursor.getString(NOTE_COLUMN_ID);
+                        exportNoteToText(noteId, ps);
+                    } while (noteCursor.moveToNext());
+                }
+                noteCursor.close();
+            }
+            ps.close();
 
             return STATE_SUCCESS;
         }
 
+        private PrintStream getExportToTextPrintStreamInternalStorage() {
+            try {
+
+//                File fileDir = mContext.getFilesDir();// 使用内部存储目录，但是它不可访问
+                File fileDir = Environment.getExternalStorageDirectory();//目录直接从环境获取，指向/storage/emulated/0
+                                                                        //也就是你内部存储的根目录
+                // 创建文件，例如：note_export.txt
+                File noteFile = new File(fileDir, "note_export.txt");//指定文件名
+                // 记录文件名和路径
+                mFileName = noteFile.getName();
+                mFileDirectory = fileDir.getAbsolutePath();
+                // 获取并返回打印流
+                FileOutputStream fos = new FileOutputStream(noteFile);
+                return new PrintStream(fos);
+            } catch (FileNotFoundException e) {
+                Log.e(TAG, "File not found for note export", e);
+                return null;
+            }
+        }
+
+
         /**
          * Get a print stream pointed to the file {@generateExportedTextFile}
+         *  获取指向{@generateExportedTextFile}文件的打印流
          */
         private PrintStream getExportToTextPrintStream() {
             File file = generateFileMountedOnSDcard(mContext, R.string.file_path,

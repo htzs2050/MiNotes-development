@@ -1108,5 +1108,6 @@ public class NoteEditActivity extends Activity implements OnClickListener,
         }
         return null;
     }
+
 }
 

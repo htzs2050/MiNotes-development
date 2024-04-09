@@ -32,6 +32,12 @@
     <uses-permission android:name="android.permission.USE_CREDENTIALS" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
+<!--    wyl0408 begin-->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <!-- 对于API级别29及以上，使用READ_EXTERNAL_STORAGE权限来读取外部存储 -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <!--    wyl0408 -->
+
     <application
         android:icon="@drawable/icon_app"
         android:label="@string/app_name" >

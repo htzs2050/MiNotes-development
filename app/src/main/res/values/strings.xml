@@ -76,14 +76,15 @@
     <string name="alert_message_delete_note">Confirm to delete this note?</string>
     <string name="format_move_notes_to_folder">Have moved selected %1$d notes to %2$s folder</string>
     <!-- Error information -->
-    <string name="error_sdcard_unmounted">SD card busy, not available now</string>
-    <string name="error_sdcard_export">Export failed, please check SD card</string>
+<!--    <string name="error_internal_export">SD card busy, not available now</string>-->
+    <string name="error_internal_export">Export failed, please check SD card</string>
     <string name="error_note_not_exist">The note is not exist</string>
     <string name="error_note_empty_for_clock">Sorry, can not set clock on empty note</string>
     <string name="error_note_empty_for_send_to_desktop">Sorry, can not send and empty note to home</string>
-    <string name="success_sdcard_export">Export successful</string>
-    <string name="failed_sdcard_export">Export fail</string>
-    <string name="format_exported_file_location">Export text file (%1$s) to SD (%2$s) directory</string>
+    <string name="success_internal_export">Export successful</string>
+    <string name="failed_internal_export">Export fail</string>
+
+    <string name="format_exported_internal_storage_location">Export text file (%1$s) to SD (%2$s) directory</string>
     <!-- Sync -->
     <string name="ticker_syncing">Syncing notes...</string>
     <string name="ticker_success">Sync is successful</string>

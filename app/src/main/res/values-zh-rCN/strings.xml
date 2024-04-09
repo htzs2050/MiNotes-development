@@ -72,14 +72,14 @@
     <string name="alert_message_delete_folder">确认删除文件夹及所包含的便签吗？</string>
     <string name="format_move_notes_to_folder">已将所选 %1$d 条便签移到 %2$s 文件夹</string>
     <!-- export text -->
-    <string name="error_sdcard_unmounted">SD卡被占用，不能操作</string>
-    <string name="error_sdcard_export">导出文本时发生错误，请检查SD卡</string>
+<!--    <string name="error_internal_export">SD卡被占用，不能操作</string>-->
+    <string name="error_internal_export">导出文本时发生错误，请检查内部存储卡</string>
     <string name="error_note_not_exist">要查看的便签不存在</string>
     <string name="error_note_empty_for_clock">不能为空便签设置闹钟提醒</string>
     <string name="error_note_empty_for_send_to_desktop">不能将空便签发送到桌面</string>
-    <string name="success_sdcard_export">导出成功</string>
-    <string name="failed_sdcard_export">导出失败</string>
-    <string name="format_exported_file_location">已将文本文件(%1$s)输出至SD卡(%2$s)目录</string>
+    <string name="success_internal_export">导出成功</string>
+    <string name="failed_internal_export">导出失败</string>
+    <string name="format_exported_internal_storage_location">已将文本文件(%1$s)输出至SD卡(%2$s)目录</string>
     <!-- Sync -->
     <string name="ticker_syncing">同步便签...</string>
     <string name="ticker_success">同步成功</string>

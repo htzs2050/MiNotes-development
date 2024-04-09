@@ -71,14 +71,14 @@
     <string name="alert_message_delete_notes">确认要刪除所選的 %d 條便籤嗎?</string>
     <string name="alert_message_delete_note">确认要删除該條便籤嗎?</string>
     <string name="alert_message_delete_folder">確認刪除檔夾及所包含的便簽嗎？</string>
-    <string name="error_sdcard_unmounted">SD卡被佔用，不能操作</string>
-    <string name="error_sdcard_export">導出TXT時發生錯誤，請檢查SD卡</string>
+<!--    <string name="error_internal_export">SD卡被佔用，不能操作</string>-->
+    <string name="error_internal_export">導出TXT時發生錯誤，請檢查SD卡</string>
     <string name="error_note_not_exist">要查看的便籤不存在</string>
     <string name="error_note_empty_for_clock">不能爲空便籤設置鬧鐘提醒</string>
     <string name="error_note_empty_for_send_to_desktop">不能將空便籤發送到桌面</string>
-    <string name="success_sdcard_export">導出成功</string>
-    <string name="failed_sdcard_export">導出失敗</string>
-    <string name="format_exported_file_location">已將文本文件(%1$s)導出至SD(%2$s)目錄</string>
+    <string name="success_internal_export">導出成功</string>
+    <string name="failed_internal_export">導出失敗</string>
+    <string name="format_exported_internal_storage_location">已將文本文件(%1$s)導出至SD(%2$s)目錄</string>
     <!-- Sync -->
     <string name="ticker_syncing">同步便簽...</string>
     <string name="ticker_success">同步成功</string>

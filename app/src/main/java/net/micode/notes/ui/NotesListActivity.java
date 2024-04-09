@@ -17,6 +17,7 @@
 package net.micode.notes.ui;
 
 import android.R.menu;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -73,11 +74,23 @@ import net.micode.notes.widget.NoteWidgetProvider_2x;
 import net.micode.notes.widget.NoteWidgetProvider_4x;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.HashSet;
+/*
+Activity生命周期管理：代码通过实现onCreate(Bundle savedInstanceState)方法，初始化UI和资源，包括设置布局、初始化查询处理器、设置事件监听器等。
+        笔记列表显示与管理：利用ListView展示笔记列表，并通过NotesListAdapter来管理和适配数据。该列表支持点击和长按事件，用于打开笔记编辑和多选删除等操作。
+        背景模式切换：代码中有关于背景模式切换的逻辑，允许用户切换应用的背景图片。
+        菜单选项：通过重写onPrepareOptionsMenu(Menu menu)和onOptionsItemSelected(MenuItem item)方法，提供了创建新笔记、导出笔记、同步、设置等菜单选项。
+        新增、编辑、删除笔记：提供了创建新笔记、编辑和删除笔记的功能，包括批量删除和移动到特定文件夹等。
+        文件夹管理：支持创建新文件夹、重命名和删除文件夹，以及在文件夹间移动笔记。
+        搜索功能：整合了搜索功能，允许用户搜索特定笔记。
+        设置及同步：允许用户通过设置菜单进入设置页面，以及进行数据同步。
 
+ */
 public class NotesListActivity extends Activity implements OnClickListener, OnItemLongClickListener {
     private static final int FOLDER_NOTE_LIST_QUERY_TOKEN = 0;
     //首页背景切换wyl:定义一个变量
@@ -140,7 +153,7 @@ public class NotesListActivity extends Activity implements OnClickListener, OnIt
 //    @override注解在Java中的作用是指示某个子类的方法是从父类或接口继承过来的，用以覆盖（重写）父类中的方法。
 //    使用@override可以帮助开发者及早发现代码中可能存在的问题，并且可以提高代码的可读性。
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) { //初始化Activity和布局，包括设置背景和初始化列表等。
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.note_list);
@@ -159,6 +172,7 @@ public class NotesListActivity extends Activity implements OnClickListener, OnIt
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        //处理从其他Activity返回的结果，例如笔记编辑后返回笔记列表。
         if (resultCode == RESULT_OK
                 && (requestCode == REQUEST_CODE_OPEN_NODE || requestCode == REQUEST_CODE_NEW_NODE)) {
             mNotesListAdapter.changeCursor(null);
@@ -601,6 +615,7 @@ public class NotesListActivity extends Activity implements OnClickListener, OnIt
         mTitleBar.setVisibility(View.VISIBLE);
     }
 
+//    处理点击事件，如创建新笔记按钮。
     public void onClick(View v) {
 
             if (v.getId() == R.id.btn_new_note)
@@ -770,6 +785,7 @@ public class NotesListActivity extends Activity implements OnClickListener, OnIt
         }
     };
 
+//    处理上下文菜单选项选择，如删除或重命名文件夹。
     @Override
     public void onContextMenuClosed(Menu menu) {
         if (mNotesListView != null) {
@@ -812,7 +828,7 @@ public class NotesListActivity extends Activity implements OnClickListener, OnIt
         return true;
     }
 
-
+//    准备OptionsMenu并处理选项选择，如同步、设置等操作。
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         menu.clear();
@@ -890,53 +906,117 @@ public class NotesListActivity extends Activity implements OnClickListener, OnIt
         return true;
     }
 
+//    处理搜索请求，启动系统搜索。
     @Override
     public boolean onSearchRequested() {
         startSearch(null, false, null /* appData */, false);
         return true;
     }
+//    导出笔记到文本文件的逻辑。wyl:新增加
+@SuppressLint("StaticFieldLeak")
+private void exportNoteToText() {
+    // 获取BackupUtils的单例对象
+    final BackupUtils backup = BackupUtils.getInstance(NotesListActivity.this);
+    // 开启一个异步任务
+    new AsyncTask<Void, Void, Integer>() {
 
-    private void exportNoteToText() {
-        final BackupUtils backup = BackupUtils.getInstance(NotesListActivity.this);
-        new AsyncTask<Void, Void, Integer>() {
+        @Override
+        // 在后台线程执行导出操作
+        protected Integer doInBackground(Void... unused) {
+            // 修改为调用保存到内部存储的方法
+            return backup.exportToTextInternalStorage();
+        }
 
-            @Override
-            protected Integer doInBackground(Void... unused) {
-                return backup.exportToText();
+
+        @Override
+        // 根据导出结果更新UI
+        protected void onPostExecute(Integer result) {
+            // 如果导出成功，则显示成功提示和文件位置
+            if (result == BackupUtils.STATE_SUCCESS) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(NotesListActivity.this);
+                builder.setTitle(NotesListActivity.this.getString(R.string.success_internal_export));
+                // 更新成功消息，指出文件已保存到内部存储
+                builder.setMessage(NotesListActivity.this.getString(
+                        R.string.format_exported_internal_storage_location,
+                        backup.getExportedTextFileName(),
+                        backup.getExportedTextFileDir())
+                );
+                builder.setPositiveButton(android.R.string.ok, null);
+                builder.show();
+                // 如果发生错误，则显示错误提示
+            } else if (result == BackupUtils.STATE_SYSTEM_ERROR) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(NotesListActivity.this);
+                builder.setTitle(NotesListActivity.this.getString(R.string.failed_internal_export));
+                builder.setMessage(NotesListActivity.this.getString(R.string.error_internal_export));
+                builder.setPositiveButton(android.R.string.ok, null);
+                builder.show();
+            }
+        }
+
+    }.execute(); // 立即执行异步任务
+}
+
+    public String readBackupFile(String filePath) {
+        StringBuilder content = new StringBuilder();
+        try {
+            FileInputStream fis = new FileInputStream(new File(filePath));
+            InputStreamReader isr = new InputStreamReader(fis);
+            BufferedReader br = new BufferedReader(isr);
+
+            String line;
+            while ((line = br.readLine()) != null) {
+                content.append(line).append('\n');
             }
 
-            @Override
-            protected void onPostExecute(Integer result) {
-                if (result == BackupUtils.STATE_SD_CARD_UNMOUONTED) {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(NotesListActivity.this);
-                    builder.setTitle(NotesListActivity.this
-                            .getString(R.string.failed_sdcard_export));
-                    builder.setMessage(NotesListActivity.this
-                            .getString(R.string.error_sdcard_unmounted));
-                    builder.setPositiveButton(android.R.string.ok, null);
-                    builder.show();
-                } else if (result == BackupUtils.STATE_SUCCESS) {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(NotesListActivity.this);
-                    builder.setTitle(NotesListActivity.this
-                            .getString(R.string.success_sdcard_export));
-                    builder.setMessage(NotesListActivity.this.getString(
-                            R.string.format_exported_file_location, backup
-                                    .getExportedTextFileName(), backup.getExportedTextFileDir()));
-                    builder.setPositiveButton(android.R.string.ok, null);
-                    builder.show();
-                } else if (result == BackupUtils.STATE_SYSTEM_ERROR) {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(NotesListActivity.this);
-                    builder.setTitle(NotesListActivity.this
-                            .getString(R.string.failed_sdcard_export));
-                    builder.setMessage(NotesListActivity.this
-                            .getString(R.string.error_sdcard_export));
-                    builder.setPositiveButton(android.R.string.ok, null);
-                    builder.show();
-                }
-            }
-
-        }.execute();
+            br.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+            // 处理错误，比如文件不存在
+        }
+        return content.toString();
     }
+
+//    private void exportNoteToText() {
+//        final BackupUtils backup = BackupUtils.getInstance(NotesListActivity.this);
+//        new AsyncTask<Void, Void, Integer>() {
+//
+//            @Override
+//            protected Integer doInBackground(Void... unused) {
+//                return backup.exportToText();
+//            }
+//
+//            @Override
+//            protected void onPostExecute(Integer result) {
+//                if (result == BackupUtils.STATE_SD_CARD_UNMOUONTED) {
+//                    AlertDialog.Builder builder = new AlertDialog.Builder(NotesListActivity.this);
+//                    builder.setTitle(NotesListActivity.this
+//                            .getString(R.string.failed_sdcard_export));
+//                    builder.setMessage(NotesListActivity.this
+//                            .getString(R.string.error_sdcard_unmounted));
+//                    builder.setPositiveButton(android.R.string.ok, null);
+//                    builder.show();
+//                } else if (result == BackupUtils.STATE_SUCCESS) {
+//                    AlertDialog.Builder builder = new AlertDialog.Builder(NotesListActivity.this);
+//                    builder.setTitle(NotesListActivity.this
+//                            .getString(R.string.success_sdcard_export));
+//                    builder.setMessage(NotesListActivity.this.getString(
+//                            R.string.format_exported_file_location, backup
+//                                    .getExportedTextFileName(), backup.getExportedTextFileDir()));
+//                    builder.setPositiveButton(android.R.string.ok, null);
+//                    builder.show();
+//                } else if (result == BackupUtils.STATE_SYSTEM_ERROR) {
+//                    AlertDialog.Builder builder = new AlertDialog.Builder(NotesListActivity.this);
+//                    builder.setTitle(NotesListActivity.this
+//                            .getString(R.string.failed_sdcard_export));
+//                    builder.setMessage(NotesListActivity.this
+//                            .getString(R.string.error_sdcard_export));
+//                    builder.setPositiveButton(android.R.string.ok, null);
+//                    builder.show();
+//                }
+//            }
+//
+//        }.execute();
+//    }
 
     private boolean isSyncMode() {
         return NotesPreferenceActivity.getSyncAccountName(this).trim().length() > 0;
@@ -948,6 +1028,7 @@ public class NotesListActivity extends Activity implements OnClickListener, OnIt
         from.startActivityIfNeeded(intent, -1);
     }
 
+//    内部类OnListItemClickListener和ModeCallback处理列表项的点击事件和ActionMode事件。
     private class OnListItemClickListener implements OnItemClickListener {
 
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -989,6 +1070,9 @@ public class NotesListActivity extends Activity implements OnClickListener, OnIt
 
     }
 
+
+    //开始查询目标文件夹并显示选择文件夹列表的菜单，用于移动笔记。
+
     private void startQueryDestinationFolders() {
         String selection = NoteColumns.TYPE + "=? AND " + NoteColumns.PARENT_ID + "<>? AND " + NoteColumns.ID + "<>?";
         selection = (mState == ListEditState.NOTE_LIST) ? selection:
@@ -1027,4 +1111,6 @@ public class NotesListActivity extends Activity implements OnClickListener, OnIt
     public void OnOpenMenu(View view) {
 		openOptionsMenu();
 	}
+
+
 }
