@@ -31,38 +31,38 @@ import net.micode.notes.data.Notes.NoteColumns;
 import net.micode.notes.data.Notes.TextNote;
 import net.micode.notes.tool.ResourceParser.NoteBgResources;
 
-
+//工作笔记类
 public class WorkingNote {
     // Note for the working note
-    private Note mNote;
+    private Note mNote;// 笔记
     // Note Id
-    private long mNoteId;
+    private long mNoteId;// 笔记ID
     // Note content
-//    private String mContent; //修改0304
-    public String mContent;
+//    private String mContent; //修改wyl
+    public String mContent;// 笔记内容
     // Note mode
-    private int mMode;
+    private int mMode;// 笔记模式
 
-    private long mAlertDate;
+    private long mAlertDate;// 提醒日期
 
-    private long mModifiedDate;
+    private long mModifiedDate;// 修改日期
 
-    private int mBgColorId;
+    private int mBgColorId;// 背景颜色ID
 
-    private int mWidgetId;
+    private int mWidgetId;// 小部件ID
 
-    private int mWidgetType;
+    private int mWidgetType;// 小部件类型
 
-    private long mFolderId;
+    private long mFolderId;// 文件夹ID
 
-    private Context mContext;
+    private Context mContext;// 上下文
 
-    private static final String TAG = "WorkingNote";
+    private static final String TAG = "WorkingNote";// 是否已删除标志
 
     private boolean mIsDeleted;
-
+    // 笔记设置改变监听器
     private NoteSettingChangedListener mNoteSettingStatusListener;
-
+    // 笔记投影
     public static final String[] DATA_PROJECTION = new String[] {
             DataColumns.ID,
             DataColumns.CONTENT,
@@ -81,7 +81,7 @@ public class WorkingNote {
             NoteColumns.WIDGET_TYPE,
             NoteColumns.MODIFIED_DATE
     };
-
+    // 数据列索引
     private static final int DATA_ID_COLUMN = 0;
 
     private static final int DATA_CONTENT_COLUMN = 1;
@@ -89,7 +89,7 @@ public class WorkingNote {
     private static final int DATA_MIME_TYPE_COLUMN = 2;
 
     private static final int DATA_MODE_COLUMN = 3;
-
+    // 笔记列索引
     private static final int NOTE_PARENT_ID_COLUMN = 0;
 
     private static final int NOTE_ALERTED_DATE_COLUMN = 1;
@@ -101,7 +101,7 @@ public class WorkingNote {
     private static final int NOTE_WIDGET_TYPE_COLUMN = 4;
 
     private static final int NOTE_MODIFIED_DATE_COLUMN = 5;
-
+    // 私有构造函数，创建一个空白笔记
     // New note construct
     private WorkingNote(Context context, long folderId) {
         mContext = context;
@@ -114,7 +114,7 @@ public class WorkingNote {
         mMode = 0;
         mWidgetType = Notes.TYPE_WIDGET_INVALIDE;
     }
-
+    // 私有构造函数，加载现有笔记
     // Existing note construct
     private WorkingNote(Context context, long noteId, long folderId) {
         mContext = context;
@@ -124,7 +124,7 @@ public class WorkingNote {
         mNote = new Note();
         loadNote();
     }
-
+    // 加载笔记信息
     private void loadNote() {
         Cursor cursor = mContext.getContentResolver().query(
                 ContentUris.withAppendedId(Notes.CONTENT_NOTE_URI, mNoteId), NOTE_PROJECTION, null,
@@ -146,7 +146,7 @@ public class WorkingNote {
         }
         loadNoteData();
     }
-
+    // 加载笔记数据
     private void loadNoteData() {
         Cursor cursor = mContext.getContentResolver().query(Notes.CONTENT_DATA_URI, DATA_PROJECTION,
                 DataColumns.NOTE_ID + "=?", new String[] {

@@ -37,12 +37,12 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-
+// SqlNote 类用于管理便签在数据库中的操作
 public class SqlNote {
     private static final String TAG = SqlNote.class.getSimpleName();
 
     private static final int INVALID_ID = -99999;
-
+    // 便签的投影查询，包含了便签的各种属性
     public static final String[] PROJECTION_NOTE = new String[] {
             NoteColumns.ID, NoteColumns.ALERTED_DATE, NoteColumns.BG_COLOR_ID,
             NoteColumns.CREATED_DATE, NoteColumns.HAS_ATTACHMENT, NoteColumns.MODIFIED_DATE,
@@ -51,7 +51,7 @@ public class SqlNote {
             NoteColumns.LOCAL_MODIFIED, NoteColumns.ORIGIN_PARENT_ID, NoteColumns.GTASK_ID,
             NoteColumns.VERSION
     };
-
+    // 便签属性在投影查询中的索引
     public static final int ID_COLUMN = 0;
 
     public static final int ALERTED_DATE_COLUMN = 1;
@@ -86,12 +86,15 @@ public class SqlNote {
 
     public static final int VERSION_COLUMN = 16;
 
+    // 上下文和内容解析器
     private Context mContext;
 
     private ContentResolver mContentResolver;
 
+    // 是否为创建新便签的标志
     private boolean mIsCreate;
 
+    // 便签的各种属性
     private long mId;
 
     private long mAlertDate;
@@ -118,10 +121,11 @@ public class SqlNote {
 
     private long mVersion;
 
+    // 用于存储便签属性变化的 ContentValues
     private ContentValues mDiffNoteValues;
-
+    // 便签的数据列表
     private ArrayList<SqlData> mDataList;
-
+    // 构造函数，用于创建新便签
     public SqlNote(Context context) {
         mContext = context;
         mContentResolver = context.getContentResolver();
@@ -142,7 +146,7 @@ public class SqlNote {
         mDiffNoteValues = new ContentValues();
         mDataList = new ArrayList<SqlData>();
     }
-
+    // 构造函数，用于从数据库查询结果创建便签
     public SqlNote(Context context, Cursor c) {
         mContext = context;
         mContentResolver = context.getContentResolver();
@@ -153,7 +157,7 @@ public class SqlNote {
             loadDataContent();
         mDiffNoteValues = new ContentValues();
     }
-
+    // 构造函数，用于从数据库中查询指定 id 的便签创建对象
     public SqlNote(Context context, long id) {
         mContext = context;
         mContentResolver = context.getContentResolver();
@@ -165,7 +169,7 @@ public class SqlNote {
         mDiffNoteValues = new ContentValues();
 
     }
-
+    // 从数据库中加载指定 id 的便签信息
     private void loadFromCursor(long id) {
         Cursor c = null;
         try {
@@ -184,7 +188,7 @@ public class SqlNote {
                 c.close();
         }
     }
-
+    // 从数据库中加载指定 id 的便签信息
     private void loadFromCursor(Cursor c) {
         mId = c.getLong(ID_COLUMN);
         mAlertDate = c.getLong(ALERTED_DATE_COLUMN);
@@ -199,7 +203,7 @@ public class SqlNote {
         mWidgetType = c.getInt(WIDGET_TYPE_COLUMN);
         mVersion = c.getLong(VERSION_COLUMN);
     }
-
+    // 从数据库查询结果加载便签信息
     private void loadDataContent() {
         Cursor c = null;
         mDataList.clear();

@@ -318,7 +318,8 @@ public class BackupUtils {
             // 遍历数据库中的内容，将其写入文本
             return STATE_SUCCESS;
         }
-        public int exportToTextInternalStorage() { //仿写exportToText()，导出到内部存储
+        //仿写exportToText()，导出到内部存储
+        public int exportToTextInternalStorage() {
             // 获取导出到文本的打印流，保存至内部存储
             PrintStream ps = getExportToTextPrintStreamInternalStorage();
             if (ps == null) {

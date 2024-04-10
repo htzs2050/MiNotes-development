@@ -35,32 +35,33 @@ import java.util.ArrayList;
 
 
 public class Note {
-    private ContentValues mNoteDiffValues;
-    private NoteData mNoteData;
-    private static final String TAG = "Note";
+    private ContentValues mNoteDiffValues;// 存储笔记不同的值
+    private NoteData mNoteData;// 存储笔记数据
+    private static final String TAG = "Note";// 定义日志标签
     /**
      * Create a new note id for adding a new note to databases
+     * // 为添加新笔记到数据库创建新的笔记ID的方法
      */
     public static synchronized long getNewNoteId(Context context, long folderId) {
         // Create a new note in the database
         ContentValues values = new ContentValues();
         long createdTime = System.currentTimeMillis();
-        values.put(NoteColumns.CREATED_DATE, createdTime);
-        values.put(NoteColumns.MODIFIED_DATE, createdTime);
-        values.put(NoteColumns.TYPE, Notes.TYPE_NOTE);
-        values.put(NoteColumns.LOCAL_MODIFIED, 1);
-        values.put(NoteColumns.PARENT_ID, folderId);
+        values.put(NoteColumns.CREATED_DATE, createdTime);// 设置创建时间
+        values.put(NoteColumns.MODIFIED_DATE, createdTime);// 设置修改时间
+        values.put(NoteColumns.TYPE, Notes.TYPE_NOTE);// 设置笔记类型
+        values.put(NoteColumns.LOCAL_MODIFIED, 1);// 设置本地修改标志
+        values.put(NoteColumns.PARENT_ID, folderId);// 设置父文件夹ID
         Uri uri = context.getContentResolver().insert(Notes.CONTENT_NOTE_URI, values);
 
         long noteId = 0;
         try {
-            noteId = Long.valueOf(uri.getPathSegments().get(1));
+            noteId = Long.valueOf(uri.getPathSegments().get(1));// 获取笔记ID
         } catch (NumberFormatException e) {
-            Log.e(TAG, "Get note id error :" + e.toString());
+            Log.e(TAG, "Get note id error :" + e.toString());// 记录错误日志
             noteId = 0;
         }
         if (noteId == -1) {
-            throw new IllegalStateException("Wrong note id:" + noteId);
+            throw new IllegalStateException("Wrong note id:" + noteId);// 如果笔记ID为-1，则抛出异常
         }
         return noteId;
     }
@@ -129,7 +130,7 @@ public class Note {
 
         return true;
     }
-
+    // 构造函数，初始化成员变量
     private class NoteData {
         private long mTextDataId;
 
@@ -147,11 +148,11 @@ public class Note {
             mTextDataId = 0;
             mCallDataId = 0;
         }
-
+        // 检查是否本地修改的方法
         boolean isLocalModified() {
             return mTextDataValues.size() > 0 || mCallDataValues.size() > 0;
         }
-
+        // 设置文本数据的方法
         void setTextDataId(long id) {
             if(id <= 0) {
                 throw new IllegalArgumentException("Text data id should larger than 0");
@@ -177,20 +178,21 @@ public class Note {
             mNoteDiffValues.put(NoteColumns.LOCAL_MODIFIED, 1);
             mNoteDiffValues.put(NoteColumns.MODIFIED_DATE, System.currentTimeMillis());
         }
-
+        // 将笔记数据推送到内容解析器的方法
         Uri pushIntoContentResolver(Context context, long noteId) {
             /**
-             * Check for safety
+             * Check for safety // 检查笔记ID是否合法，若不合法则抛出异常
              */
             if (noteId <= 0) {
                 throw new IllegalArgumentException("Wrong note id:" + noteId);
             }
-
+            // 创建操作列表
             ArrayList<ContentProviderOperation> operationList = new ArrayList<ContentProviderOperation>();
             ContentProviderOperation.Builder builder = null;
-
+            // 如果文本数据不为空
             if(mTextDataValues.size() > 0) {
-                mTextDataValues.put(DataColumns.NOTE_ID, noteId);
+                mTextDataValues.put(DataColumns.NOTE_ID, noteId);// 设置文本数据对应的笔记ID
+                // 如果文本数据ID为0，表示为新数据，执行插入操作
                 if (mTextDataId == 0) {
                     mTextDataValues.put(DataColumns.MIME_TYPE, TextNote.CONTENT_ITEM_TYPE);
                     Uri uri = context.getContentResolver().insert(Notes.CONTENT_DATA_URI,
@@ -247,7 +249,7 @@ public class Note {
                     return null;
                 }
             }
-            return null;
+            return null;// 若操作列表为空，则直接返回null
         }
     }
 }

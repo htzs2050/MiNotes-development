@@ -37,5 +37,17 @@ android {
         targetCompatibility "17"
     }
     ndkVersion '26.2.11394342'
+    sonarqube {
+        properties {
+            property "sonar.sourceEncoding", "GBK"
+            property "sonar.projectKey", "projectkey" //projectkey
+            property "sonar.projectName", project.name //projectname
+            property "sonar.sources", "src/main/java" //源码，写这个就行
+            property "sonar.projectVersion", project.version //版本，随意
+            property "sonar.binaries", "build/intermediates/classes"
+        }
+    }
+//    cmd:
+//    gradlew sonarqube -Dsonar.projectKey=minote -Dsonar.host.url=http://localhost:9000 -Dsonar.login=5a9c5c4600a5bd662dd6e243f4f19767f5b289f0
 
 }

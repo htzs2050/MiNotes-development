@@ -922,7 +922,7 @@ private void exportNoteToText() {
 
         @Override
         // 在后台线程执行导出操作
-        protected Integer doInBackground(Void... unused) {
+        protected Integer doInBackground(Void... unused)    {
             // 修改为调用保存到内部存储的方法
             return backup.exportToTextInternalStorage();
         }
